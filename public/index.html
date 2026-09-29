@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Arkvidya Chat</title>
+  <meta name="theme-color" content="#73c9ed" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Arkvidya" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" type="image/png" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -19,7 +26,10 @@
           <p>Arkvidya will look at it</p>
         </div>
       </div>
-      <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+      <div class="header-actions">
+        <button class="install-btn" id="installBtn" type="button" hidden>Install</button>
+        <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+      </div>
     </header>
 
     <main class="messages" id="messages">
