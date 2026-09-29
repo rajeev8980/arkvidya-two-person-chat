@@ -141,6 +141,8 @@ function createRelay() {
 
     if (topic === `${ROOM}/msg`) {
       if (remember(data) && assigned) fire("new-message", data);
+    } else if (topic === `${ROOM}/delivered`) {
+      if (typeof data.id === "string" && assigned) fire("message-delivered", { id: data.id });
     } else if (topic === `${ROOM}/destroy`) {
       if (typeof data.id === "string" && forget(data.id) && assigned) fire("message-destroyed", { id: data.id });
     } else if (topic === `${ROOM}/history-request`) {
@@ -165,7 +167,7 @@ function createRelay() {
       myMember = null;
       presence.delete(clientId);
       client.subscribe(
-        [`${ROOM}/presence/+`, `${ROOM}/msg`, `${ROOM}/destroy`, `${ROOM}/history-request`, `${ROOM}/history/${clientId}`],
+        [`${ROOM}/presence/+`, `${ROOM}/msg`, `${ROOM}/delivered`, `${ROOM}/destroy`, `${ROOM}/history-request`, `${ROOM}/history/${clientId}`],
         { qos: 1 },
         () => {
           if (!assigned) client.publish(`${ROOM}/history-request`, JSON.stringify({ from: clientId }));
@@ -194,6 +196,10 @@ function createRelay() {
       (handlers[event] = handlers[event] || []).push(cb);
     },
     emit(event, payload) {
+      if (event === "message-delivered" && typeof payload === "string" && client) {
+        client.publish(`${ROOM}/delivered`, JSON.stringify({ id: payload }), { qos: 1 });
+        return;
+      }
       if (event === "message-seen" && typeof payload === "string" && client) {
         forget(payload);
         client.publish(`${ROOM}/destroy`, JSON.stringify({ id: payload }), { qos: 1 });
