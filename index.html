@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Arkvidya Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="chat-widget" id="chatWidget">
+    <header class="chat-header">
+      <div class="brand">
+        <div class="bulb" aria-hidden="true">
+          <span class="bulb-head"></span>
+          <span class="bulb-base"></span>
+        </div>
+        <div>
+          <h1>Need something?</h1>
+          <p>Arkvidya will look at it</p>
+        </div>
+      </div>
+      <button class="close-btn" id="closeBtn" aria-label="Close">×</button>
+    </header>
+
+    <main class="messages" id="messages">
+      <div class="message theirs" id="welcomeMessage">
+        Hi! Tell us what you need — Arkvidya will look at it.
+      </div>
+    </main>
+
+    <div class="status" id="status">Waiting for the other member…</div>
+
+    <form class="composer" id="composer">
+      <textarea
+        id="messageInput"
+        rows="1"
+        maxlength="1000"
+        placeholder="Type your suggestion..."
+        autocomplete="off"
+      ></textarea>
+      <button class="send-btn" type="submit" aria-label="Send message">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3.4 20.4 21 12 3.4 3.6 3 10l11 2-11 2 .4 6.4Z"></path>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <div class="closed-card" id="closedCard">
+    <button id="openBtn">💡 Chat with Arkvidya</button>
+  </div>
+
+  <div class="full-screen" id="fullScreen">
+    <div class="full-box">
+      <div class="bulb large"><span class="bulb-head"></span><span class="bulb-base"></span></div>
+      <h2>Chat is full</h2>
+      <p>Only two members can use this chat at the same time.</p>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
