@@ -1,4 +1,8 @@
 node_modules
+android/build/
+android/res/mipmap-xxxhdpi/
+android/*.keystore
+android/keystore.properties
 .env
 .env.*
 *.log
