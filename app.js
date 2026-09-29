@@ -9,6 +9,9 @@ const closedCard = document.getElementById("closedCard");
 const fullScreen = document.getElementById("fullScreen");
 const closeBtn = document.getElementById("closeBtn");
 const openBtn = document.getElementById("openBtn");
+const installBtn = document.getElementById("installBtn");
+
+let installPrompt = null;
 
 let myMember = null;
 
@@ -102,5 +105,30 @@ openBtn.addEventListener("click", () => {
   widget.style.display = "flex";
   input.focus();
 });
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  installBtn.hidden = false;
+});
+
+installBtn.addEventListener("click", async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  installBtn.hidden = true;
+});
+
+window.addEventListener("appinstalled", () => {
+  installPrompt = null;
+  installBtn.hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js");
+  });
+}
 
 scrollToBottom();
