@@ -1,4 +1,4 @@
-# Builds android/build/Arkvidya.apk without Gradle, using the local Android SDK
+# Builds android/build/School.apk without Gradle, using the local Android SDK
 # and JDK. The signing key is created on first run and must be kept: Android
 # only accepts updates signed with the same key.
 $ErrorActionPreference = "Stop"
@@ -55,7 +55,7 @@ $password = ((Get-Content $keyProps) -replace "^password=", "")
 
 Run "$buildTools\apksigner.bat" @("sign", "--ks", $keystore, "--ks-key-alias", "arkvidya",
   "--ks-pass", "pass:$password", "--key-pass", "pass:$password",
-  "--out", "$build\Arkvidya.apk", "$build\aligned.apk")
-Run "$buildTools\apksigner.bat" @("verify", "$build\Arkvidya.apk")
+  "--out", "$build\School.apk", "$build\aligned.apk")
+Run "$buildTools\apksigner.bat" @("verify", "$build\School.apk")
 
-Write-Host "Built $build\Arkvidya.apk"
+Write-Host "Built $build\School.apk"

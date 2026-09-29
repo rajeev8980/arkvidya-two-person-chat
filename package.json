@@ -2,7 +2,7 @@
   "name": "arkvidya-two-person-chat",
   "version": "1.0.0",
   "private": true,
-  "description": "Tiny two-person real-time Arkvidya chat widget",
+  "description": "Tiny real-time School chat widget for up to four members",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

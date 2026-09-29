@@ -68,5 +68,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Arkvidya chat running at http://localhost:${PORT}`);
+  console.log(`School chat running at http://localhost:${PORT}`);
 });

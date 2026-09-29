@@ -1,6 +1,6 @@
-# Arkvidya Tiny Two-Person Chat
+# School Chat
 
-A small real-time chat widget inspired by the supplied Arkvidya screenshots.
+A small real-time chat widget for up to four members.
 
 ## Features
 
