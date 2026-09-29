@@ -57,3 +57,5 @@ Both devices must be on the same network.
 This version stores messages only in server memory. Restarting the server clears the messages.
 
 For internet use, deploy the Node.js app to a host that supports WebSockets (for example a Node-compatible hosting service), then place the widget on your website if desired.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/rajeev8980/arkvidya-two-person-chat)
