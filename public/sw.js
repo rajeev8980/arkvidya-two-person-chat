@@ -1,12 +1,14 @@
-const CACHE = "arkvidya-v1";
+const CACHE = "arkvidya-v2";
 const APP_SHELL = [
-  "/",
-  "/style.css",
-  "/app.js",
-  "/manifest.webmanifest",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "./",
+  "style.css",
+  "app.js",
+  "relay.js",
+  "manifest.webmanifest",
+  "icons/icon-192.png",
+  "icons/icon-512.png"
 ];
+const HOME = new URL("./", self.location).href;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(APP_SHELL)));
@@ -27,7 +29,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (event.request.method !== "GET" || url.origin !== self.location.origin) return;
-  if (url.pathname.startsWith("/socket.io/")) return;
+  if (url.pathname.includes("/socket.io/")) return;
 
   event.respondWith(
     fetch(event.request)
@@ -36,6 +38,6 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/")))
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match(HOME)))
   );
 });

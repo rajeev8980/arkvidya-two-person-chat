@@ -58,4 +58,20 @@ This version stores messages only in server memory. Restarting the server clears
 
 For internet use, deploy the Node.js app to a host that supports WebSockets (for example a Node-compatible hosting service), then place the widget on your website if desired.
 
+## Permanent link without a server (GitHub Pages)
+
+The `public` folder also works as a static site. When the Socket.IO server is
+not present, the page connects through a free public MQTT relay instead
+(`public/relay.js`). Messages pass through that third-party relay, so this mode
+is not private and has no uptime guarantee.
+
+Live at: https://rajeev8980.github.io/arkvidya-two-person-chat/
+
+To publish changes to the `public` folder:
+
+```bash
+git subtree split --prefix public -b gh-pages
+git push origin gh-pages
+```
+
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/rajeev8980/arkvidya-two-person-chat)
