@@ -69,10 +69,9 @@ function addMessage(message) {
   messagesEl.appendChild(el);
   scrollToBottom();
 
-  if (!mine) {
-    socket.emit("message-delivered", message.id);
-    seenObserver.observe(el);
-  }
+  // The sender's copy always goes; the receiver's copy waits until it is seen.
+  if (mine) setTimeout(() => fadeOut(el), SEEN_VISIBLE_MS);
+  else seenObserver.observe(el);
 }
 
 function setStatus(count, max) {
@@ -99,15 +98,6 @@ socket.on("chat-history", (history) => {
 
 socket.on("new-message", (message) => {
   addMessage(message);
-});
-
-// The sender's copy goes once any receiver has it, whether or not they have
-// looked at it yet.
-socket.on("message-delivered", ({ id }) => {
-  const el = messagesEl.querySelector(`[data-id="${CSS.escape(id)}"]`);
-  if (!el || !el.classList.contains("mine") || el.dataset.delivered) return;
-  el.dataset.delivered = "true";
-  setTimeout(() => fadeOut(el), SEEN_VISIBLE_MS);
 });
 
 socket.on("message-destroyed", ({ id }) => {
