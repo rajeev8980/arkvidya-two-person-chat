@@ -144,6 +144,14 @@ body {
   border-top-left-radius: 5px;
 }
 
+.message .sender {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .message.mine {
   align-self: flex-end;
   background: #23698a;

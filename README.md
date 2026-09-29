@@ -4,15 +4,14 @@ A small real-time chat widget inspired by the supplied Arkvidya screenshots.
 
 ## Features
 
-- Exactly 2 simultaneous members
+- Up to 4 simultaneous members
 - No login
 - No registration
 - No database required
 - Real-time messages with Socket.IO
 - Responsive/mobile-friendly UI
-- First visitor becomes Member 1
-- Second visitor becomes Member 2
-- Third visitor is rejected while both places are occupied
+- Each visitor takes the lowest free seat (Member 1 to Member 4)
+- A fifth visitor is rejected while all four places are occupied
 - Last 100 messages are kept in server memory
 
 ## Run in Cursor / terminal

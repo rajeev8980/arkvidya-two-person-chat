@@ -11,37 +11,43 @@ const closeBtn = document.getElementById("closeBtn");
 const openBtn = document.getElementById("openBtn");
 
 let myMember = null;
-let welcomed = false;
 
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function addMessage(message) {
+  const mine = message.member === myMember;
   const el = document.createElement("div");
-  el.className = `message ${message.member === myMember ? "mine" : "theirs"}`;
-  el.textContent = message.text;
+  el.className = `message ${mine ? "mine" : "theirs"}`;
+
+  if (!mine) {
+    const sender = document.createElement("span");
+    sender.className = "sender";
+    sender.textContent = `Member ${message.member}`;
+    el.appendChild(sender);
+  }
+
+  el.appendChild(document.createTextNode(message.text));
   messagesEl.appendChild(el);
   scrollToBottom();
 }
 
-function setStatus(count) {
-  if (count >= 2) {
-    statusEl.textContent = "Both members are connected";
+function setStatus(count, max) {
+  const you = myMember ? `You are Member ${myMember} • ` : "";
+  if (count <= 1) {
+    statusEl.textContent = `${you}waiting for others to join (up to ${max})`;
   } else {
-    statusEl.textContent = "Waiting for the other member…";
+    statusEl.textContent = `${you}${count} of ${max} members online`;
   }
 }
 
 socket.on("member-assigned", ({ memberNumber }) => {
   myMember = memberNumber;
-  statusEl.textContent = memberNumber === 1
-    ? "You are Member 1 • waiting for Member 2"
-    : "You are Member 2 • connected";
 });
 
-socket.on("members", ({ count }) => {
-  setStatus(count);
+socket.on("members", ({ count, max }) => {
+  setStatus(count, max);
 });
 
 socket.on("chat-history", (history) => {
@@ -53,7 +59,9 @@ socket.on("new-message", (message) => {
   addMessage(message);
 });
 
-socket.on("room-full", () => {
+socket.on("room-full", ({ max }) => {
+  document.getElementById("fullMessage").textContent =
+    `Only ${max} members can use this chat at the same time.`;
   fullScreen.style.display = "flex";
   widget.style.display = "none";
 });

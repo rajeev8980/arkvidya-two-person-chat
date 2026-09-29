@@ -8,28 +8,39 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
-const MAX_MEMBERS = 2;
+const MAX_MEMBERS = 4;
 
 // Keep the app intentionally tiny: only the latest 100 messages are retained
 // while the server is running.
 const messages = [];
+const takenMembers = new Set();
 
 app.use(express.static(path.join(__dirname, "public")));
 
-io.on("connection", (socket) => {
-  const connected = io.engine.clientsCount;
+function broadcastMembers() {
+  io.emit("members", { count: takenMembers.size, max: MAX_MEMBERS });
+}
 
-  if (connected > MAX_MEMBERS) {
-    socket.emit("room-full");
+io.on("connection", (socket) => {
+  let memberNumber = null;
+  for (let n = 1; n <= MAX_MEMBERS; n++) {
+    if (!takenMembers.has(n)) {
+      memberNumber = n;
+      break;
+    }
+  }
+
+  if (memberNumber === null) {
+    socket.emit("room-full", { max: MAX_MEMBERS });
     socket.disconnect(true);
     return;
   }
 
-  const memberNumber = connected === 1 ? 1 : 2;
-  socket.emit("member-assigned", { memberNumber });
+  takenMembers.add(memberNumber);
+  socket.emit("member-assigned", { memberNumber, max: MAX_MEMBERS });
   socket.emit("chat-history", messages);
 
-  io.emit("members", { count: Math.min(io.engine.clientsCount, MAX_MEMBERS) });
+  broadcastMembers();
 
   socket.on("send-message", (rawText) => {
     if (typeof rawText !== "string") return;
@@ -51,7 +62,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    io.emit("members", { count: Math.min(io.engine.clientsCount, MAX_MEMBERS) });
+    takenMembers.delete(memberNumber);
+    broadcastMembers();
   });
 });
 
