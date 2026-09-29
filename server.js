@@ -61,6 +61,13 @@ io.on("connection", (socket) => {
     io.emit("new-message", message);
   });
 
+  socket.on("message-seen", (id) => {
+    const index = messages.findIndex((m) => m.id === id && m.member !== memberNumber);
+    if (index === -1) return;
+    messages.splice(index, 1);
+    io.emit("message-destroyed", { id });
+  });
+
   socket.on("disconnect", () => {
     takenMembers.delete(memberNumber);
     broadcastMembers();

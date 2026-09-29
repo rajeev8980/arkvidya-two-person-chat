@@ -15,14 +15,43 @@ let installPrompt = null;
 
 let myMember = null;
 
+const SEEN_DESTROY_MS = 1000;
+const inView = new Set();
+const seenObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) inView.add(entry.target);
+    else inView.delete(entry.target);
+  });
+  destroyVisibleMessages();
+}, { root: messagesEl, threshold: 0.6 });
+
+// A message counts as seen only when it is on screen in a visible, open chat.
+function destroyVisibleMessages() {
+  if (document.visibilityState !== "visible" || widget.style.display === "none") return;
+  inView.forEach((el) => {
+    inView.delete(el);
+    seenObserver.unobserve(el);
+    el.classList.add("vanishing");
+    setTimeout(() => {
+      socket.emit("message-seen", el.dataset.id);
+      el.remove();
+    }, SEEN_DESTROY_MS);
+  });
+}
+
+document.addEventListener("visibilitychange", destroyVisibleMessages);
+
 function scrollToBottom() {
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function addMessage(message) {
+  if (messagesEl.querySelector(`[data-id="${CSS.escape(message.id)}"]`)) return;
+
   const mine = message.member === myMember;
   const el = document.createElement("div");
   el.className = `message ${mine ? "mine" : "theirs"}`;
+  el.dataset.id = message.id;
 
   if (!mine) {
     const sender = document.createElement("span");
@@ -34,6 +63,8 @@ function addMessage(message) {
   el.appendChild(document.createTextNode(message.text));
   messagesEl.appendChild(el);
   scrollToBottom();
+
+  if (!mine) seenObserver.observe(el);
 }
 
 function setStatus(count, max) {
@@ -60,6 +91,14 @@ socket.on("chat-history", (history) => {
 
 socket.on("new-message", (message) => {
   addMessage(message);
+});
+
+socket.on("message-destroyed", ({ id }) => {
+  const el = messagesEl.querySelector(`[data-id="${CSS.escape(id)}"]`);
+  if (!el) return;
+  inView.delete(el);
+  seenObserver.unobserve(el);
+  el.remove();
 });
 
 socket.on("room-full", ({ max }) => {

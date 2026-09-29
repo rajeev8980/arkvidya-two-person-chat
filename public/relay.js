@@ -8,7 +8,6 @@ function createRelay() {
   const MAX_MEMBERS = 4;
   const HISTORY_LIMIT = 100;
   const SETTLE_MS = 1500;
-  const STORAGE_KEY = "arkvidya-history";
 
   const clientId = `ark-${Math.random().toString(36).slice(2, 12)}`;
   const presenceTopic = `${ROOM}/presence/${clientId}`;
@@ -16,6 +15,7 @@ function createRelay() {
   const presence = new Map();
   const history = [];
   const seen = new Set();
+  const destroyed = new Set();
 
   let client = null;
   let myMember = null;
@@ -34,19 +34,26 @@ function createRelay() {
   }
 
   function remember(m) {
-    if (!isValidMessage(m) || seen.has(m.id)) return false;
+    if (!isValidMessage(m) || seen.has(m.id) || destroyed.has(m.id)) return false;
     seen.add(m.id);
     history.push({ id: m.id, member: m.member, text: m.text.slice(0, 1000), time: m.time });
     history.sort((a, b) => a.time.localeCompare(b.time));
     while (history.length > HISTORY_LIMIT) seen.delete(history.shift().id);
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
-    } catch (_) {}
     return true;
   }
 
+  function forget(id) {
+    destroyed.add(id);
+    const index = history.findIndex((m) => m.id === id);
+    if (index === -1) return false;
+    history.splice(index, 1);
+    seen.delete(id);
+    return true;
+  }
+
+  // Older versions kept history on the device; seen messages must not linger.
   try {
-    JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]").forEach(remember);
+    localStorage.removeItem("arkvidya-history");
   } catch (_) {}
 
   function memberCount() {
@@ -134,6 +141,8 @@ function createRelay() {
 
     if (topic === `${ROOM}/msg`) {
       if (remember(data) && assigned) fire("new-message", data);
+    } else if (topic === `${ROOM}/destroy`) {
+      if (typeof data.id === "string" && forget(data.id) && assigned) fire("message-destroyed", { id: data.id });
     } else if (topic === `${ROOM}/history-request`) {
       if (myMember !== null && data.from !== clientId && history.length) {
         client.publish(`${ROOM}/history/${data.from}`, JSON.stringify(history));
@@ -156,7 +165,7 @@ function createRelay() {
       myMember = null;
       presence.delete(clientId);
       client.subscribe(
-        [`${ROOM}/presence/+`, `${ROOM}/msg`, `${ROOM}/history-request`, `${ROOM}/history/${clientId}`],
+        [`${ROOM}/presence/+`, `${ROOM}/msg`, `${ROOM}/destroy`, `${ROOM}/history-request`, `${ROOM}/history/${clientId}`],
         { qos: 1 },
         () => {
           if (!assigned) client.publish(`${ROOM}/history-request`, JSON.stringify({ from: clientId }));
@@ -185,6 +194,11 @@ function createRelay() {
       (handlers[event] = handlers[event] || []).push(cb);
     },
     emit(event, payload) {
+      if (event === "message-seen" && typeof payload === "string" && client) {
+        forget(payload);
+        client.publish(`${ROOM}/destroy`, JSON.stringify({ id: payload }), { qos: 1 });
+        return;
+      }
       if (event !== "send-message" || typeof payload !== "string" || myMember === null) return;
       const text = payload.trim().slice(0, 1000);
       if (!text) return;
