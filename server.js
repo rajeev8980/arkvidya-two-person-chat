@@ -61,11 +61,6 @@ io.on("connection", (socket) => {
     io.emit("new-message", message);
   });
 
-  socket.on("message-delivered", (id) => {
-    if (!messages.some((m) => m.id === id && m.member !== memberNumber)) return;
-    io.emit("message-delivered", { id });
-  });
-
   socket.on("message-seen", (id) => {
     const index = messages.findIndex((m) => m.id === id && m.member !== memberNumber);
     if (index === -1) return;
