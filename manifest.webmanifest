@@ -1,6 +1,6 @@
 {
-  "name": "Arkvidya Chat",
-  "short_name": "Arkvidya",
+  "name": "School Chat",
+  "short_name": "School",
   "description": "Small real-time chat for up to four members.",
   "id": "./",
   "start_url": "./",
