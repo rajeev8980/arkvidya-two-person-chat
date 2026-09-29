@@ -1,4 +1,4 @@
-const CACHE = "arkvidya-v6";
+const CACHE = "arkvidya-v7";
 const APP_SHELL = [
   "./",
   "style.css",
