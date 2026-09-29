@@ -15,7 +15,8 @@ let installPrompt = null;
 
 let myMember = null;
 
-const SEEN_DESTROY_MS = 1000;
+const SEEN_VISIBLE_MS = 3000;
+const FADE_MS = 500;
 const inView = new Set();
 const seenObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -31,12 +32,16 @@ function destroyVisibleMessages() {
   inView.forEach((el) => {
     inView.delete(el);
     seenObserver.unobserve(el);
-    el.classList.add("vanishing");
     setTimeout(() => {
       socket.emit("message-seen", el.dataset.id);
-      el.remove();
-    }, SEEN_DESTROY_MS);
+      fadeOut(el);
+    }, SEEN_VISIBLE_MS);
   });
+}
+
+function fadeOut(el) {
+  el.classList.add("vanishing");
+  setTimeout(() => el.remove(), FADE_MS);
 }
 
 document.addEventListener("visibilitychange", destroyVisibleMessages);
@@ -98,7 +103,7 @@ socket.on("message-destroyed", ({ id }) => {
   if (!el) return;
   inView.delete(el);
   seenObserver.unobserve(el);
-  el.remove();
+  fadeOut(el);
 });
 
 socket.on("room-full", ({ max }) => {

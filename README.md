@@ -12,8 +12,8 @@ A small real-time chat widget for up to four members.
 - Responsive/mobile-friendly UI
 - Each visitor takes the lowest free seat (Member 1 to Member 4)
 - A fifth visitor is rejected while all four places are occupied
-- Disappearing messages: once another member has a message on screen, it is
-  destroyed 1 second later for everyone, including the sender
+- Disappearing messages: once another member has a message on screen, it stays
+  visible for 3 seconds and is then destroyed for everyone, including the sender
 - Last 100 messages are kept in server memory
 
 ## Run in Cursor / terminal
